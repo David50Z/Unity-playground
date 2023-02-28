@@ -106,9 +106,9 @@ namespace DD
             //Invoke("triggerIdleAnimation", 1);
         }
 
-        public void triggerIdleAnimation()
+        public void triggerIdle()
         {
-            //anim.SetTrigger("Idle");
+            anim.SetTrigger("Idle");
         }
 
         public void CanRotate()
@@ -189,6 +189,17 @@ namespace DD
             }
 
             CanRotate();
+        }
+
+        public void triggerJumpAnim()
+        {
+            Debug.Log("HELLO");
+            anim.SetTrigger("Jump");
+        }
+
+        public void disableJumpAnim()
+        {
+            anim.SetTrigger("Land");
         }
     }
 

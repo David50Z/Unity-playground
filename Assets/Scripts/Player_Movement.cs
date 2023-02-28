@@ -16,11 +16,20 @@ namespace DD
         [SerializeField]
         float rotationSpeed = 10;
 
+        [SerializeField]
+        public Transform groundCheck;
+
+        [SerializeField]
+        LayerMask playerMask;
+
+
         Transform cameraObject;
         public Transform target;
         Input_Handler inputHandler;
         Timer_Handler timerFunc;
         public Vector3 moveDirection;
+        bool isGrounded = false;
+        bool jump = false;
 
         [HideInInspector]
         public Transform myTransform;
@@ -88,6 +97,11 @@ namespace DD
                 if (Input.GetKey(KeyCode.S)) inputDir.z = -1f;
                 if (Input.GetKey(KeyCode.A)) inputDir.x = -1f;
                 if (Input.GetKey(KeyCode.D)) inputDir.x = +1f;
+                if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+                {
+                    jump = true;
+                    isGrounded = false;
+                }
             } else
             {
                 inputDir = new Vector3(0, 0, 0);
@@ -116,6 +130,8 @@ namespace DD
                 attack = false;
                 checkActive = false;
             }
+
+            tryJump();
 
             Vector3 moveDir = cameraObject.forward * inputDir.z + cameraObject.right * inputDir.x;
 
@@ -204,5 +220,45 @@ namespace DD
             }
         }
         #endregion
+
+        public void tryJump()
+        {
+            Vector3 moveDir = cameraObject.forward * inputDir.z + cameraObject.right * inputDir.x;
+
+            float moveSpeed = 10f;
+            moveDir *= moveSpeed;
+
+            moveDir.y = rigidBody.velocity.y;
+
+            rigidBody.velocity = moveDir;
+            target.position = rigidBody.position;
+
+
+            if(Physics.OverlapSphere(groundCheck.position, 0.1f, playerMask).Length == 0)
+            {
+                if (isGrounded == true)
+                {
+                    isGrounded = false;
+                }
+                return;
+            } else
+            {
+                if (isGrounded == false)
+                {
+                    isGrounded = true;
+                    Debug.Log("THE STUFF HAPPEEEEEENED");
+                    animatorHandler.disableJumpAnim();
+                }
+            }
+
+            if (jump && isGrounded)
+            {
+                rigidBody.AddForce(Vector3.up * 5, ForceMode.VelocityChange);
+                animatorHandler.triggerJumpAnim();
+                jump = false;
+                isGrounded = false;
+            } 
+
+        }
     }
 }
